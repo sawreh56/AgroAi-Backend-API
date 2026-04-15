@@ -41,7 +41,7 @@ const predictCropDisease = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("PREDICT ERROR:", error?.message || error);
     const { statusCode, body } = apiErrors.handleApiErrors(error);
-    return res.status(statusCode).json(body);
+    return res.status(statusCode).json(typeof body === 'string' ? JSON.parse(body) : body);
   }
 };
 
@@ -109,7 +109,7 @@ const predictCropRecommendation = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     const { statusCode, body } = apiErrors.handleApiErrors(error);
-    return res.status(statusCode).json(body);
+    return res.status(statusCode).json(typeof body === 'string' ? JSON.parse(body) : body);
   }
 };
 

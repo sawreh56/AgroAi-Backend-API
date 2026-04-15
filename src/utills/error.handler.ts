@@ -63,10 +63,22 @@ const formatApiErrorResponse = (error: ApiError) => {
 };
 
 const handleApiErrors = (error: unknown) => {
+  console.error("API Error:", error);
+  
   if (typeof error === 'object' && error !== null && 'statusCode' in error) {
     return formatApiErrorResponse(error as ApiError);
   }
-  throw error
+  
+  // Handle unexpected errors gracefully
+  const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+  return {
+    statusCode: 500,
+    body: JSON.stringify({
+      error: "Internal Server Error",
+      message: errorMessage,
+      statusCode: 500,
+    }),
+  };
 };
 
 

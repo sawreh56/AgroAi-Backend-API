@@ -69,6 +69,7 @@ const expertRegisteration=async(req:Request,res:Response)=>{
         res.status(codes.created).json({status:constMessages.success,message:constMessages.expertRegistered,data:newUser})
     }
     catch(error:unknown){
+        console.error("Expert Registration Error:", error);
         const {statusCode,body}=apiErrors.handleApiErrors(error);
         return res.status(statusCode).json(JSON.parse(body))
     }
