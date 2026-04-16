@@ -53,7 +53,7 @@ export const sendOtpViaEmail = async (email: string, otp: string) => {
 `,
     });
   } catch (error: unknown) {
-    const { statusCode, body } = apiErrors.handleApiErrors(error);
-    throw new Error(JSON.parse(body));
+    const { body } = apiErrors.handleApiErrors(error);
+    throw apiErrors.internalServerError("Failed to send OTP email", body.details);
   }
 };

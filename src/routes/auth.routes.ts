@@ -1,8 +1,12 @@
 import { Request,Response, Router } from "express";
 import { authControllers } from "../controllers/auth.controllers";
 import uploadImage from "../middlewares/uploadImage.middleware";
+import { authLimiter, otpLimiter } from "../middlewares/rateLimiter.middleware";
+import { requireAuth } from "../middlewares/auth.middleware";
 
 const router=Router();
+
+router.use(authLimiter);
 
 /**
  * @swagger
@@ -138,7 +142,7 @@ router.post("/register_expert",uploadImage,authControllers.expertRegisteration)
  *       400:
  *         description: Bad request or user not found
  */
-router.post("/login",authControllers.userLogin)
+router.post("/login",otpLimiter,authControllers.userLogin)
 
 /**
  * @swagger
@@ -170,7 +174,7 @@ router.post("/login",authControllers.userLogin)
  *       400:
  *         description: Invalid or expired OTP
  */
-router.post("/verify_otp",authControllers.verifyOtp)
+router.post("/verify_otp",otpLimiter,authControllers.verifyOtp)
 
 /**
  * @swagger
@@ -198,7 +202,7 @@ router.post("/verify_otp",authControllers.verifyOtp)
  *       400:
  *         description: User not found
  */
-router.post("/delete_account",authControllers.deleteAccount)
+router.post("/delete_account",requireAuth,authControllers.deleteAccount)
 
 /**
  * @swagger
@@ -241,7 +245,7 @@ router.post("/delete_account",authControllers.deleteAccount)
  *       400:
  *         description: Bad request or user not found
  */
-router.put("/update_farmer",uploadImage,authControllers.updateFarmer)
+router.put("/update_farmer",requireAuth,uploadImage,authControllers.updateFarmer)
 
 /**
  * @swagger
@@ -287,6 +291,6 @@ router.put("/update_farmer",uploadImage,authControllers.updateFarmer)
  *       400:
  *         description: Bad request or user not found
  */
-router.put("/update_expert",uploadImage,authControllers.updateExpert)
+router.put("/update_expert",requireAuth,uploadImage,authControllers.updateExpert)
 
 export default router;
