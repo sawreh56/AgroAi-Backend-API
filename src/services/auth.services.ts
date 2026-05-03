@@ -14,9 +14,9 @@ const createUser = async (userData: {
   name: string;
   number: string;
   email: string;
-  location: string;
-  crops_type: string;
-  image: string;
+  location?: string;
+  crops_type?: string;
+  image?: string;
     user_type: string;
 }) => {
   const newUser = new registrationModel(userData);
@@ -27,10 +27,10 @@ const createExpertUser = async (userData: {
   name: string;
   number: string;
   email: string;
-  expertise: string;
-  experiance: string;
-  bio: string;
-  image: string;
+  expertise?: string;
+  experiance?: string;
+  bio?: string;
+  image?: string;
   user_type: string;
 }) => {
   const expertUser = new expertRegistrationModel(userData);

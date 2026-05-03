@@ -32,6 +32,43 @@ const createInMemoryRateLimiter = (windowMs: number, max: number, message: strin
   };
 };
 
+// Rate limiter based on email for OTP requests
+const createEmailBasedRateLimiter = (windowMs: number, max: number, message: string) => {
+  const emailStore = new Map<string, ClientEntry>();
+
+  return (req: Request, res: Response, next: NextFunction) => {
+    const email = req.body?.email?.toLowerCase();
+    
+    if (!email) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Email is required",
+        statusCode: 400,
+      });
+    }
+
+    const now = Date.now();
+    const existing = emailStore.get(email);
+
+    if (!existing || now > existing.resetAt) {
+      emailStore.set(email, { count: 1, resetAt: now + windowMs });
+      return next();
+    }
+
+    if (existing.count >= max) {
+      return res.status(429).json({
+        error: "Too Many Requests",
+        message,
+        statusCode: 429,
+      });
+    }
+
+    existing.count += 1;
+    emailStore.set(email, existing);
+    return next();
+  };
+};
+
 export const generalLimiter = createInMemoryRateLimiter(
   15 * 60 * 1000,
   250,
@@ -44,8 +81,8 @@ export const authLimiter = createInMemoryRateLimiter(
   "Too many auth requests from this IP. Please try again later."
 );
 
-export const otpLimiter = createInMemoryRateLimiter(
+export const otpLimiter = createEmailBasedRateLimiter(
   10 * 60 * 1000,
   5,
-  "Too many OTP attempts from this IP. Please try again later."
+  "Too many OTP attempts for this email. Please try again after 10 minutes."
 );

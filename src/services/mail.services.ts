@@ -8,11 +8,18 @@ const transporter = nodemailer.createTransport({
     user: config.EMAIL,
     pass: config.PASS_CODE,
   },
+  connectionTimeout: 10000, // 10 seconds
+  socketTimeout: 10000,     // 10 seconds
 });
 
-export const sendOtpViaEmail = async (email: string, otp: string) => {
+export const sendOtpViaEmail = async (email: string, otp: string): Promise<void> => {
   try {
-    await transporter.sendMail({
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Email send timeout after 15 seconds")), 15000)
+    );
+
+    await Promise.race([
+      transporter.sendMail({
       from: `"AgroAI" <${config.EMAIL}>`,
       to: email,
       subject: "OTP Verification",
@@ -51,7 +58,9 @@ export const sendOtpViaEmail = async (email: string, otp: string) => {
   </p>
 </div>
 `,
-    });
+      }),
+      timeoutPromise,
+    ]);
   } catch (error: unknown) {
     const { body } = apiErrors.handleApiErrors(error);
     throw apiErrors.internalServerError("Failed to send OTP email", body.details);

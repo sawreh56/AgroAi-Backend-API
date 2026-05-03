@@ -12,9 +12,9 @@ const registrationSchema = new mongoose.Schema(
             unique: true,
             index: true,
         },
-        location: { type: String, required: true, trim: true, minlength: 2, maxlength: 120 },
-        crops_type: { type: String, required: true, trim: true },
-        image: { type: String, required: true, trim: true },
+        location: { type: String, required: false, trim: true, minlength: 2, maxlength: 120 },
+        crops_type: { type: String, required: false, trim: true },
+        image: { type: String, required: false, trim: true },
         user_type: { type: String, required: true, enum: ["farmer"] },
     },
     {

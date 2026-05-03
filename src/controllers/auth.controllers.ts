@@ -23,13 +23,10 @@ const farmerRegisteration = async (req: Request, res: Response) => {
             throw apiErrors.badRequest(constMessages.emptyBody);
         }
 
-        if (!req.file) {
-            throw apiErrors.badRequest(constMessages.imageRequired);
-        }
-
         const { name, number, email, location, crops_type, user_type } = req.body;
 
-        if (!name || !number || !email || !location || !crops_type || !user_type) {
+        // Only name, number, email, and user_type are required during registration
+        if (!name || !number || !email || !user_type) {
             throw apiErrors.badRequest(constMessages.EmptyFields);
         }
 
@@ -59,16 +56,16 @@ const farmerRegisteration = async (req: Request, res: Response) => {
             (req.headers["x-forwarded-host"] as string) || req.get("host");
 
         const baseUrl = `${protocol}://${host}`;
-        const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+        const imageUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : undefined;
 
         const newUser = await authServices.createUser({
             name,
             number,
             email: normalizedEmail,
-            location,
-            crops_type,
+            location: location || undefined,
+            crops_type: crops_type || undefined,
             user_type: normalizedUserType,
-            image: imageUrl,
+            image: imageUrl || undefined,
         });
 
         return res.status(codes.created).json({
@@ -91,14 +88,11 @@ const expertRegisteration = async (req: Request, res: Response) => {
             throw apiErrors.badRequest(constMessages.emptyBody);
         }
 
-        if (!req.file) {
-            throw apiErrors.badRequest(constMessages.imageRequired);
-        }
-
         const { name, number, email, expertise, experiance, bio, user_type } =
             req.body;
 
-        if (!name || !number || !email || !expertise || !experiance || !bio || !user_type) {
+        // Only name, number, email, and user_type are required during registration
+        if (!name || !number || !email || !user_type) {
             throw apiErrors.badRequest(constMessages.EmptyFields);
         }
 
@@ -114,7 +108,7 @@ const expertRegisteration = async (req: Request, res: Response) => {
             throw apiErrors.badRequest("user_type must be expert for this endpoint");
         }
 
-        if (String(bio).trim().length < 10) {
+        if (bio && String(bio).trim().length < 10) {
             throw apiErrors.badRequest("bio must be at least 10 characters long");
         }
 
@@ -132,16 +126,16 @@ const expertRegisteration = async (req: Request, res: Response) => {
             (req.headers["x-forwarded-host"] as string) || req.get("host");
 
         const baseUrl = `${protocol}://${host}`;
-        const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+        const imageUrl = req.file ? `${baseUrl}/uploads/${req.file.filename}` : undefined;
 
         const newUser = await authServices.createExpertUser({
             name,
             number,
             email: normalizedEmail,
-            expertise,
-            experiance,
-            bio,
-            image: imageUrl,
+            expertise: expertise || undefined,
+            experiance: experiance || undefined,
+            bio: bio || undefined,
+            image: imageUrl || undefined,
             user_type: normalizedUserType,
         });
 
